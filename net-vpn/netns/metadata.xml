@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>hololeap@protonmail.com</email>
+    <description>Primary maintainer</description>
+  </maintainer>
+  <longdescription>
+    This is an experimental ebuild for the executable portion of some scripts
+    for running and interacting with network namespaces. The namespaces need
+    to be set up seperately with any daemons running inside them, though this
+    ebuild will install some basic prerequisites.
+
+    It assumes you are using openvpn for the "vpn" network namespace. This
+    should be changed in the future to a) handle different types of VPNs, b)
+    allow for easier adding/subtracting of namespaces.
+
+    The namespace setup and starting their daemons is not currently automated.
+  </longdescription>
+  <use>
+    <flag name="tor">Install <pkg>net-vpn/tor</pkg> for the netns-tor namespace</flag>
+  </use>
+</pkgmetadata>

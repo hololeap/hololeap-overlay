@@ -1,0 +1,11 @@
+#!/bin/bash
+
+basename="$(/usr/bin/basename "$0")"
+
+user_name="$(/usr/bin/id -un)"
+group_name="$(/usr/bin/id -gn)"
+netns_name="${basename#netns-}"
+
+export NETNS_PATH="$PATH"
+
+/usr/bin/sudo -E /usr/libexec/exec-in-netns "$user_name" "$group_name" "$netns_name" "$@"

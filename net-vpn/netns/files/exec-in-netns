@@ -1,0 +1,13 @@
+#!/bin/bash
+
+IP="/usr/bin/ip"
+SUDO="/usr/bin/sudo"
+
+user_name="$1"
+shift
+group_name="$1"
+shift
+export NETNS_NAME="$1"
+shift
+
+"$IP" netns exec "$NETNS_NAME" "$SUDO" PATH="${NETNS_PATH}" -s -E -u "$user_name" -g "$group_name" "$@"
