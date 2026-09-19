@@ -50,4 +50,10 @@ src_install() {
 	insinto "/etc/sudoers.d"
 	doins "${FILESDIR}/99_netns"
 	sed -i -e "s/MAINUSER/${main_user}/g" "${D}/etc/sudoers.d/99_netns" || die
+
+	if use tor; then
+		insinto "/etc/dnscrypt-proxy"
+		doins "${FILESDIR}/dnscrypt-proxy-tor.toml"
+		doins "${FILESDIR}/forwarding-rules-tor.toml"
+	fi
 }
