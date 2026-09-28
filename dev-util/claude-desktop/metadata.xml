@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>hololeap@protonmail.com</email>
+		<name>hololeap</name>
+	</maintainer>
+	<use>
+		<flag name="cowork">Support the Cowork tab, which runs agentic tasks in a local QEMU/KVM virtual machine</flag>
+		<flag name="gnome">Install the GNOME Shell search provider (requires <pkg>dev-libs/gjs</pkg>)</flag>
+	</use>
+</pkgmetadata>
