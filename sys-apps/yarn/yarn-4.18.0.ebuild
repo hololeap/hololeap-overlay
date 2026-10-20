@@ -1,6 +1,8 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# This ebuild was generated in part by Claude Code
+
 EAPI=8
 
 MY_P="berry--yarnpkg-cli-${PV}"
@@ -17,30 +19,29 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86"
 
 RDEPEND="net-libs/nodejs"
-DEPEND="${RDEPEND}"
-
+BDEPEND="${RDEPEND}"
 
 RESTRICT="strip"
 
-src_prepare() {
-	default
-	sed -i 's/"installationMethod": "tar"/"installationMethod": "portage"/g' "${S}/package.json" || die
+PATCHES=(
+	"${FILESDIR}"/${PN}-4.18.0-disable-telemetry.patch
+)
+
+src_compile() {
+	# Build the CLI bundle from source. All build dependencies are vendored in
+	# .yarn/cache and the bundler is esbuild-wasm, so this works offline.
+	# Upstream's committed packages/yarnpkg-cli/bin/yarn.js is a reproducible
+	# build of the same sources.
+	local -x YARN_ENABLE_TELEMETRY=0
+	node scripts/run-yarn.js build:cli || die
 }
 
 src_install() {
-	local install_dir="/usr/$(get_libdir)/node_modules/yarn" path shebang
-	insinto "${install_dir}"
-	doins -r .
-	dosym "../$(get_libdir)/node_modules/yarn/scripts/bin/yarn" "/usr/bin/yarn"
-	dosym "../$(get_libdir)/node_modules/yarn/scripts/bin/yarnpkg" "/usr/bin/yarnpkg"
+	local install_dir="/usr/$(get_libdir)/node_modules/yarn"
 
-#	while read -r -d '' path; do
-#		local shebang="$(head -c2 "${ED}${path}" || die)"
-#		[[ "${shebang}" == \#\! ]] || continue
-#		fperms +x "${path}"
-#	done < <(find "${ED}" -type f \! -empty -printf '/%P\0' || die)
+	exeinto "${install_dir}"/bin
+	doexe packages/yarnpkg-cli/bundles/yarn.js
 
-	for e in "${ED}/usr/lib64/node_modules/yarn/scripts/bin/*"; do
-		fperms +x "${e}"
-	done
+	dosym -r "${install_dir}"/bin/yarn.js /usr/bin/yarn
+	dosym -r "${install_dir}"/bin/yarn.js /usr/bin/yarnpkg
 }
