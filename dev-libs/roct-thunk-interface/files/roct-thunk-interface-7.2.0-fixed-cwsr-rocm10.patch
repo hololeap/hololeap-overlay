@@ -1,0 +1,32 @@
+Adapted from: <https://github.com/gufo-org/gufo/blob/6cc8a42ca84438a0566ee498a315f35c6190dc8e/.devops/nix/patches/rocr-fixed-cwsr-rocm10.patch>
+See: <https://github.com/gufo-org/gufo/blob/6cc8a42ca84438a0566ee498a315f35c6190dc8e/README.md#without-nix>
+Signed-off-by: hololeap <hololeap@protonmail.com>
+
+--- a/src/queues.c
++++ b/src/queues.c
+@@ -574,7 +574,15 @@ static int handle_concrete_asic(HsaKFDContext *ctx,
+ 		/* Allocate unified memory for context save restore
+ 		 * area on dGPU.
+ 		 */
+-		if (!q->use_ats && hsakmt_is_svm_api_supported) {
++		/* Strix Halo shares system DRAM with the CPU. Movable SVM CWSR
++		 * pages can evict all process queues during host compaction, even
++		 * when the application has pinned its own GPU-visible buffers.
++		 * Use the existing non-paged GTT path for these small queue areas;
++		 * retain SVM support for application-managed allocations.
++		 */
++		bool fixed_cwsr = node.EngineId.ui32.Major == 11 &&
++			node.EngineId.ui32.Minor == 5 && node.EngineId.ui32.Stepping == 1;
++		if (!q->use_ats && hsakmt_is_svm_api_supported && !fixed_cwsr) {
+ 			uint32_t size = PAGE_ALIGN_UP(q->total_mem_alloc_size);
+ 
+ 			pr_info("Allocating GTT for CWSR\n");
+@@ -611,7 +619,7 @@ static int handle_concrete_asic(HsaKFDContext *ctx,
+ 			q->ctx_save_restore = allocate_exec_aligned_memory(ctx,
+ 							q->total_mem_alloc_size,
+ 							q->use_ats, gpu_id, NodeId,
+-							false, false, false);
++							fixed_cwsr, false, false);
+ 
+ 			if (!q->ctx_save_restore)
+ 				return HSAKMT_STATUS_NO_MEMORY;
