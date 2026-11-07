@@ -39,6 +39,7 @@ RDEPEND="
 	media-libs/soxr
 	media-video/ffmpeg:=
 	net-misc/curl
+	!sci-ml/gufo-gemma
 "
 DEPEND="
 	${RDEPEND}
